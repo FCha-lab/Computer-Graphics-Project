@@ -20,7 +20,6 @@ public class CharacherMove : MonoBehaviour
     // Y축 움직임
 
     private bool isShiftPressed = false; // 쉬프트 키 누름 여부
-
     public bool isDizzy = false;
 
     private bool isCameraMoving = false; // 카메라 이동 상태 변수

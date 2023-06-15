@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Transactions;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
@@ -10,10 +11,12 @@ public class DrinkPotion : MonoBehaviour
     public int drinkedPotion = 0;
     public Shackhead s;
     public CharacherMove cm;
+    public Camera cam;
 
 
     public float blurDuration = 7f; // 블러 지속 시간
     public PostProcessVolume postProcessVolume; // Post-process Volume 컴포넌트
+    public AudioSource drinkSound, drinkBGM;
 
     private bool isBlurring = false; // 블러 상태 확인 변수
     private float blurTimer = 0f; // 블러 타이머
@@ -51,6 +54,7 @@ public class DrinkPotion : MonoBehaviour
             drinkedPotion++;
             Destroy(other.gameObject);
             ApplyBlur();
+            drinkSound.enabled = true;
         }
     }
 
@@ -62,6 +66,8 @@ public class DrinkPotion : MonoBehaviour
         blurTimer = 0f;
         cm.isDizzy = true;
         s.enabled = true;
+        drinkSound.Play();
+        drinkBGM.Play();
     }
 
     private void DisableBlur()
@@ -72,6 +78,10 @@ public class DrinkPotion : MonoBehaviour
         blurTimer = 0f;
         cm.isDizzy = false;
         s.enabled = false;
+        drinkBGM.Stop();
+        //Vector3 forwardDirection = cam.transform.forward;
+       // cam.transform.LookAt(cam.transform.position + forwardDirection);
+
     }
 
 }
