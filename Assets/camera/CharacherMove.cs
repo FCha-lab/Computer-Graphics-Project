@@ -21,6 +21,8 @@ public class CharacherMove : MonoBehaviour
 
     private bool isShiftPressed = false; // 쉬프트 키 누름 여부
 
+    public bool isDizzy = false;
+
     private bool isCameraMoving = false; // 카메라 이동 상태 변수
     private float cameraMoveDuration = 0.1f; // 카메라 이동 지속 시간
     private float cameraMoveTimer = 0f; // 카메라 이동 타이머
@@ -109,32 +111,37 @@ public class CharacherMove : MonoBehaviour
         isCameraMoving = true;
 
         Vector3 originalCameraPosition = cameraTransform.localPosition;
-        Vector3 targetCameraPosition = originalCameraPosition + new Vector3(0, cameraMoveDistance, 0);
 
         float elapsedTime = 0f;
 
-        // 카메라를 위로 이동
-        while (elapsedTime < cameraMoveDuration)
+        if (!isDizzy)
         {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / cameraMoveDuration);
 
-            cameraTransform.localPosition = Vector3.Lerp(originalCameraPosition, targetCameraPosition, t);
+            Vector3 targetCameraPosition = originalCameraPosition + new Vector3(0, cameraMoveDistance, 0);
 
-            yield return null;
-        }
+            // 카메라를 위로 이동
+            while (elapsedTime < cameraMoveDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / cameraMoveDuration);
 
-        // 카메라를 아래로 이동
-        elapsedTime = 0f;
+                cameraTransform.localPosition = Vector3.Lerp(originalCameraPosition, targetCameraPosition, t);
 
-        while (elapsedTime < cameraMoveDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / cameraMoveDuration);
+                yield return null;
+            }
 
-            cameraTransform.localPosition = Vector3.Lerp(targetCameraPosition, originalCameraPosition, t);
+            // 카메라를 아래로 이동
+            elapsedTime = 0f;
 
-            yield return null;
+            while (elapsedTime < cameraMoveDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsedTime / cameraMoveDuration);
+
+                cameraTransform.localPosition = Vector3.Lerp(targetCameraPosition, originalCameraPosition, t);
+
+                yield return null;
+            }
         }
 
         cameraTransform.localPosition = originalCameraPosition;
