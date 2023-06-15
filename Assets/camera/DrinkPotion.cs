@@ -7,16 +7,17 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class DrinkPotion : MonoBehaviour
 {
-
+    public GameObject target;
     public int drinkedPotion = 0;
-    public Shackhead s;
+    public MouseMove mouse_Mode_class;
     public CharacherMove cm;
     public Camera cam;
 
 
-    public float blurDuration = 7f; // 블러 지속 시간
+    public float blurDuration = 10f; // 블러 지속 시간
     public PostProcessVolume postProcessVolume; // Post-process Volume 컴포넌트
-    public AudioSource drinkSound, drinkBGM;
+
+    private AudioSource audioSource;
 
     private bool isBlurring = false; // 블러 상태 확인 변수
     private float blurTimer = 0f; // 블러 타이머
@@ -30,10 +31,12 @@ public class DrinkPotion : MonoBehaviour
 
     private void Update()
     {
-        if(drinkedPotion == 4)
-        {
+        if(drinkedPotion == 1)  { mouse_Mode_class.spon_1 = true; }
+        if (drinkedPotion == 2) { mouse_Mode_class.spon_2 = true; }
+        if (drinkedPotion == 3) { mouse_Mode_class.spon_3 = true; }
+        if (drinkedPotion == 4) { mouse_Mode_class.spon_4 = true; }
 
-        }
+       
         if (isBlurring)
         {
             // 블러 중인 동안 타이머를 증가시킵니다.
@@ -51,10 +54,11 @@ public class DrinkPotion : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Potion"))
         {
+            Debug.Log("포션 닿아짐");
             drinkedPotion++;
             Destroy(other.gameObject);
             ApplyBlur();
-            drinkSound.enabled = true;
+            
         }
     }
 
@@ -65,9 +69,7 @@ public class DrinkPotion : MonoBehaviour
         isBlurring = true;
         blurTimer = 0f;
         cm.isDizzy = true;
-        s.enabled = true;
-        drinkSound.Play();
-        drinkBGM.Play();
+        mouse_Mode_class.shake = true;
     }
 
     private void DisableBlur()
@@ -77,8 +79,7 @@ public class DrinkPotion : MonoBehaviour
         isBlurring = false;
         blurTimer = 0f;
         cm.isDizzy = false;
-        s.enabled = false;
-        drinkBGM.Stop();
+        mouse_Mode_class.shake = false;
         //Vector3 forwardDirection = cam.transform.forward;
        // cam.transform.LookAt(cam.transform.position + forwardDirection);
 
