@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MouseMove : MonoBehaviour
 {
@@ -27,6 +28,16 @@ public class MouseMove : MonoBehaviour
     private AudioSource audioSource;
     private bool isPlayingChaseMusic = false;
     private float startVolume;
+    private bool isUIActive = false; // UI가 활성화되어 있는지 여부를 나타내는 플래그
+    private Coroutine uiCoroutine; // UI 딜레이 및 페이드 인/아웃을 제어하기 위한 Coroutine 참조
+
+    public Canvas uiCanvas; // UI Canvas
+    public GameObject deadImage; // 사망 이미지
+    public GameObject retryButton; // 재시작 버튼
+    public float uiDelayTime = 3f; // UI 딜레이 시간
+    public float uiFadeDuration = 2f; // UI 페이드 인/아웃 지속 시간
+
+
 
     void Start()
     {
@@ -35,10 +46,12 @@ public class MouseMove : MonoBehaviour
         targetObject = GameObject.Find("Zombie");
 
         audioSource = GetComponent<AudioSource>();
+       
     }
 
     void Update()
     {
+
         if (canRotate)
         {
             float mouseMoveX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
@@ -56,6 +69,7 @@ public class MouseMove : MonoBehaviour
         {
             isLookingAtObject = true;
             StartCoroutine(LookAtObject());
+            
         }
     }
 
@@ -82,7 +96,7 @@ public class MouseMove : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
 
         canRotate = true;
         isLookingAtObject = false;
@@ -113,6 +127,14 @@ public class MouseMove : MonoBehaviour
         {
             StartCoroutine(FadeOutMusic(4f));
         }
+        if (isPlayingChaseMusic && Vector3.Distance(transform.position, targetObject.transform.position) <= 5f)
+        {
+            StartCoroutine(getmonsterMusic(0f)); // fadeTime을 0으로 설정하여 즉시 음악을 중지합니다.
+            if (uiCoroutine == null)
+            {
+                uiCoroutine = StartCoroutine(ShowUIAfterDelay());
+            }
+        }
     }
 
     IEnumerator FadeOutMusic(float fadeTime)
@@ -134,5 +156,41 @@ public class MouseMove : MonoBehaviour
 
         audioSource.clip = reliefPlayerSound;
         audioSource.Play();
+    }
+
+    IEnumerator getmonsterMusic(float fadeTime)
+    {
+        audioSource.Stop();
+        isPlayingChaseMusic = false;
+        yield return null;
+    }
+    IEnumerator ShowUIAfterDelay()
+    {
+        yield return new WaitForSeconds(uiDelayTime);
+
+        isUIActive = true;
+
+        // UI 요소 활성화
+        uiCanvas.gameObject.SetActive(true);
+        deadImage.SetActive(true);
+        retryButton.SetActive(true);
+
+        float t = 0f;
+        while (t < uiFadeDuration)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, t / uiFadeDuration);
+
+            // UI 요소의 알파 값을 조정하여 페이드 인 효과 적용
+            Color deadImageColor = deadImage.GetComponent<Image>().color;
+            deadImageColor.a = alpha;
+            deadImage.GetComponent<Image>().color = deadImageColor;
+
+            Color retryButtonColor = retryButton.GetComponent<Image>().color;
+            retryButtonColor.a = alpha;
+            retryButton.GetComponent<Image>().color = retryButtonColor;
+
+            yield return null;
+        }
     }
 }
